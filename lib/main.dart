@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 
-void main() {
+import 'db/database_helper.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final db = await DatabaseHelper.instance.database;
+  final planCount = Sqflite.firstIntValue(
+    await db.rawQuery('SELECT COUNT(*) FROM workout_plans'),
+  );
+  debugPrint('workout plans: $planCount');
   runApp(const MyApp());
 }
 
