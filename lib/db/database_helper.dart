@@ -29,6 +29,55 @@ class DatabaseHelper {
     );
   }
 
+  Future<List<WorkoutPlan>> plans() async {
+    final db = await database;
+    final rows = await db.query('workout_plans', orderBy: 'id');
+    return rows.map(WorkoutPlan.fromMap).toList();
+  }
+
+  Future<int> insertPlan(WorkoutPlan plan) async {
+    final db = await database;
+    return db.insert('workout_plans', plan.toMap());
+  }
+
+  Future<void> updatePlan(WorkoutPlan plan) async {
+    final db = await database;
+    await db.update(
+      'workout_plans',
+      plan.toMap(),
+      where: 'id = ?',
+      whereArgs: [plan.id],
+    );
+  }
+
+  /// Deletes a plan and, through the foreign key cascade, all its sets.
+  Future<void> deletePlan(int id) async {
+    final db = await database;
+    await db.delete('workout_plans', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> setCountForPlan(int id) async {
+    final db = await database;
+    final rows = await db.rawQuery(
+      'SELECT COUNT(*) FROM training_logs WHERE workoutId = ?',
+      [id],
+    );
+    return Sqflite.firstIntValue(rows) ?? 0;
+  }
+
+  /// Counts finished workouts, not sets.
+  ///
+  /// Every set in one workout shares a sessionKey, so distinct keys are
+  /// sessions.
+  Future<int> finishedWorkoutCount() async {
+    final db = await database;
+    final rows = await db.rawQuery(
+      'SELECT COUNT(DISTINCT sessionKey) FROM training_logs '
+      'WHERE sessionFinished = 1',
+    );
+    return Sqflite.firstIntValue(rows) ?? 0;
+  }
+
   Future<void> _onCreate(Database db, int version) async {
     final batch = db.batch();
     batch.execute('''
