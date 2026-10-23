@@ -1,6 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../models/training_log.dart';
 import '../models/workout_plan.dart';
 
 class DatabaseHelper {
@@ -76,6 +77,35 @@ class DatabaseHelper {
       'WHERE sessionFinished = 1',
     );
     return Sqflite.firstIntValue(rows) ?? 0;
+  }
+
+  Future<int> insertLog(TrainingLog log) async {
+    final db = await database;
+    return db.insert('training_logs', log.toMap());
+  }
+
+  /// Marks every set in a session finished.
+  ///
+  /// Runs in a transaction so a session is never left half finished.
+  Future<void> finishSession(String sessionKey) async {
+    final db = await database;
+    await db.transaction(
+      (txn) => txn.update(
+        'training_logs',
+        {'sessionFinished': 1},
+        where: 'sessionKey = ?',
+        whereArgs: [sessionKey],
+      ),
+    );
+  }
+
+  Future<void> deleteUnfinishedSets(String sessionKey) async {
+    final db = await database;
+    await db.delete(
+      'training_logs',
+      where: 'sessionKey = ? AND sessionFinished = 0',
+      whereArgs: [sessionKey],
+    );
   }
 
   Future<void> _onCreate(Database db, int version) async {
