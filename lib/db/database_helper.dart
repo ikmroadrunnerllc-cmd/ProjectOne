@@ -4,6 +4,8 @@ import 'package:sqflite/sqflite.dart';
 import '../models/training_log.dart';
 import '../models/workout_plan.dart';
 
+typedef HistorySet = ({TrainingLog log, String planTitle});
+
 class DatabaseHelper {
   DatabaseHelper._();
 
@@ -97,6 +99,39 @@ class DatabaseHelper {
         whereArgs: [sessionKey],
       ),
     );
+  }
+
+  /// Finished sets with their plan title, newest session first.
+  ///
+  /// Sets within a session stay in the order they were logged, so callers can
+  /// group consecutive rows by sessionKey.
+  Future<List<HistorySet>> finishedSets() async {
+    final db = await database;
+    final rows = await db.rawQuery(
+      'SELECT l.*, p.title AS planTitle FROM training_logs l '
+      'JOIN workout_plans p ON p.id = l.workoutId '
+      'WHERE l.sessionFinished = 1 '
+      'ORDER BY CAST(l.sessionKey AS INTEGER) DESC, l.id',
+    );
+    return [
+      for (final row in rows)
+        (log: TrainingLog.fromMap(row), planTitle: row['planTitle'] as String),
+    ];
+  }
+
+  Future<void> updateLog(TrainingLog log) async {
+    final db = await database;
+    await db.update(
+      'training_logs',
+      log.toMap(),
+      where: 'id = ?',
+      whereArgs: [log.id],
+    );
+  }
+
+  Future<void> deleteLog(int id) async {
+    final db = await database;
+    await db.delete('training_logs', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> deleteUnfinishedSets(String sessionKey) async {
