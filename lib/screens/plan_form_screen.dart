@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../db/database_helper.dart';
 import '../models/workout_plan.dart';
+import '../widgets/effort_slider.dart';
 
 class PlanFormScreen extends StatefulWidget {
-  const PlanFormScreen({super.key, this.plan});
+  const PlanFormScreen({super.key, this.plan, this.defaultEffort = 3});
 
   final WorkoutPlan? plan;
+
+  /// Starting effort for a new plan, from settings.
+  ///
+  /// Ignored when editing, since the plan already has one.
+  final int defaultEffort;
 
   @override
   State<PlanFormScreen> createState() => _PlanFormScreenState();
@@ -17,7 +23,7 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
   late final _title = TextEditingController(text: widget.plan?.title);
   late final _note = TextEditingController(text: widget.plan?.planNote);
   late String _equipment = widget.plan?.equipmentTag ?? equipmentTags.first;
-  late int _effort = widget.plan?.effortPreference ?? 3;
+  late int _effort = widget.plan?.effortPreference ?? widget.defaultEffort;
   bool _saving = false;
 
   @override
@@ -141,7 +147,8 @@ class _PlanFormScreenState extends State<PlanFormScreen> {
               maxLines: 3,
             ),
             const SizedBox(height: 16),
-            _EffortField(
+            EffortSlider(
+              label: 'Effort',
               effort: _effort,
               onChanged: (effort) => setState(() => _effort = effort),
             ),
@@ -180,33 +187,4 @@ String? _validateTitle(String? raw) {
   if (title.isEmpty) return 'Enter a title.';
   if (title.length > 40) return 'Keep the title to 40 characters.';
   return null;
-}
-
-class _EffortField extends StatelessWidget {
-  const _EffortField({required this.effort, required this.onChanged});
-
-  final int effort;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text('Effort: $effort', style: Theme.of(context).textTheme.titleSmall),
-        Slider(
-          value: effort.toDouble(),
-          min: 1,
-          max: 5,
-          divisions: 4,
-          label: '$effort',
-          onChanged: (value) => onChanged(value.round()),
-        ),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text('1 Easy'), Text('5 Hard')],
-        ),
-      ],
-    );
-  }
 }

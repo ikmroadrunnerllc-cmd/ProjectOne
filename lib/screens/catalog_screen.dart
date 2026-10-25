@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../db/database_helper.dart';
+import '../models/app_settings.dart';
 import '../models/workout_plan.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/workout_card.dart';
@@ -8,7 +9,9 @@ import 'plan_form_screen.dart';
 import 'workout_screen.dart';
 
 class CatalogScreen extends StatefulWidget {
-  const CatalogScreen({super.key});
+  const CatalogScreen({super.key, required this.settings});
+
+  final AppSettings settings;
 
   @override
   State<CatalogScreen> createState() => _CatalogScreenState();
@@ -71,7 +74,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
         ),
       },
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _open(const PlanFormScreen()),
+        onPressed: () =>
+            _open(PlanFormScreen(defaultEffort: widget.settings.defaultEffort)),
         icon: const Icon(Icons.add),
         label: const Text('New Plan'),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'db/database_helper.dart';
+import 'models/app_settings.dart';
 import 'screens/home_screen.dart';
 
 Future<void> main() async {
@@ -11,18 +12,45 @@ Future<void> main() async {
     await db.rawQuery('SELECT COUNT(*) FROM workout_plans'),
   );
   debugPrint('workout plans: $planCount');
-  runApp(const MovementQuestApp());
+
+  var settings = const AppSettings();
+  try {
+    settings = await AppSettings.load();
+  } catch (e) {
+    // unreadable preferences shouldn't stop the logbook from opening
+    debugPrint('load settings failed: $e');
+  }
+  runApp(MovementQuestApp(settings: settings));
 }
 
-class MovementQuestApp extends StatelessWidget {
-  const MovementQuestApp({super.key});
+class MovementQuestApp extends StatefulWidget {
+  const MovementQuestApp({super.key, required this.settings});
+
+  final AppSettings settings;
+
+  @override
+  State<MovementQuestApp> createState() => _MovementQuestAppState();
+}
+
+class _MovementQuestAppState extends State<MovementQuestApp> {
+  late AppSettings _settings = widget.settings;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Movement Quest',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const HomeScreen(),
+      darkTheme: ThemeData(
+        colorScheme: .fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: _settings.darkMode ? ThemeMode.dark : ThemeMode.light,
+      home: HomeScreen(
+        settings: _settings,
+        onSettingsChanged: (settings) => setState(() => _settings = settings),
+      ),
     );
   }
 }

@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../models/app_settings.dart';
 import 'catalog_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+    required this.settings,
+    required this.onSettingsChanged,
+  });
+
+  final AppSettings settings;
+  final ValueChanged<AppSettings> onSettingsChanged;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -18,7 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // rebuilt on every switch so each tab reloads from the database
-      body: const [CatalogScreen(), HistoryScreen(), SettingsScreen()][_tab],
+      body: [
+        CatalogScreen(settings: widget.settings),
+        const HistoryScreen(),
+        SettingsScreen(
+          settings: widget.settings,
+          onChanged: widget.onSettingsChanged,
+        ),
+      ][_tab],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (index) => setState(() => _tab = index),
