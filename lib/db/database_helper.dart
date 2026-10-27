@@ -81,6 +81,16 @@ class DatabaseHelper {
     return Sqflite.firstIntValue(rows) ?? 0;
   }
 
+  /// The plan id of the most recently started finished workout, if any.
+  Future<int?> lastFinishedWorkoutId() async {
+    final db = await database;
+    final rows = await db.rawQuery(
+      'SELECT workoutId FROM training_logs WHERE sessionFinished = 1 '
+      'ORDER BY CAST(sessionKey AS INTEGER) DESC LIMIT 1',
+    );
+    return Sqflite.firstIntValue(rows);
+  }
+
   Future<int> insertLog(TrainingLog log) async {
     final db = await database;
     return db.insert('training_logs', log.toMap());
