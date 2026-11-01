@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../helper/validators.dart';
 import '../models/training_log.dart';
 
 class SetRow extends StatelessWidget {
@@ -11,9 +12,15 @@ class SetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final weight = log.weight;
     return ListTile(
       title: Text(log.exerciseLabel),
-      subtitle: Text('${log.repetitions} reps'),
+      subtitle: Text(
+        [
+          '${log.repetitions} reps',
+          if (weight != null) '${formatWeight(weight)} lb',
+        ].join(' · '),
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -1,6 +1,7 @@
 const exerciseLabels = [
   'Push-ups',
   'Squats',
+  'Bench Press',
   'Lunges',
   'Curls',
   'Plank',
@@ -14,6 +15,7 @@ class TrainingLog {
     required this.sessionKey,
     required this.exerciseLabel,
     required this.repetitions,
+    this.weight,
     required this.loggedAt,
     this.sessionFinished = false,
   });
@@ -25,6 +27,7 @@ class TrainingLog {
       sessionKey: map['sessionKey'] as String,
       exerciseLabel: map['exerciseLabel'] as String,
       repetitions: map['repetitions'] as int,
+      weight: (map['weight'] as num?)?.toDouble(),
       loggedAt: DateTime.parse(map['loggedAt'] as String),
       sessionFinished: map['sessionFinished'] == 1,
     );
@@ -35,6 +38,12 @@ class TrainingLog {
   final String sessionKey;
   final String exerciseLabel;
   final int repetitions;
+
+  /// Load in pounds, whatever the equipment: bar, dumbbell or band.
+  ///
+  /// Null for bodyweight sets.
+  final double? weight;
+
   final DateTime loggedAt;
   final bool sessionFinished;
 
@@ -45,6 +54,7 @@ class TrainingLog {
       'sessionKey': sessionKey,
       'exerciseLabel': exerciseLabel,
       'repetitions': repetitions,
+      'weight': weight,
       'loggedAt': loggedAt.toIso8601String(),
       'sessionFinished': sessionFinished ? 1 : 0,
     };
@@ -56,6 +66,8 @@ class TrainingLog {
     String? sessionKey,
     String? exerciseLabel,
     int? repetitions,
+    double? weight,
+    bool clearWeight = false,
     DateTime? loggedAt,
     bool? sessionFinished,
   }) {
@@ -65,6 +77,7 @@ class TrainingLog {
       sessionKey: sessionKey ?? this.sessionKey,
       exerciseLabel: exerciseLabel ?? this.exerciseLabel,
       repetitions: repetitions ?? this.repetitions,
+      weight: clearWeight ? null : weight ?? this.weight,
       loggedAt: loggedAt ?? this.loggedAt,
       sessionFinished: sessionFinished ?? this.sessionFinished,
     );

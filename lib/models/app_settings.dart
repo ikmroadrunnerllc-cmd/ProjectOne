@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../demo/demo_setup.dart';
 import 'workout_plan.dart';
 
 class AppSettings {
@@ -23,29 +24,31 @@ class AppSettings {
   ///
   /// Stored values outside the allowed range or list are ignored rather than
   /// trusted.
-  static Future<AppSettings> load() async {
+  static Future<AppSettings> load({bool demo = demoMode}) async {
     final prefs = await SharedPreferences.getInstance();
-    final effort = prefs.getInt('defaultEffort');
-    final equipment = prefs.getString('preferredEquipment');
+    final prefix = demo ? 'demo.' : '';
+    final effort = prefs.getInt('${prefix}defaultEffort');
+    final equipment = prefs.getString('${prefix}preferredEquipment');
     return AppSettings(
       defaultEffort: effort != null && effort >= 1 && effort <= 5 ? effort : 3,
       preferredEquipment: equipmentTags.contains(equipment) ? equipment : null,
-      darkMode: prefs.getBool('darkMode') ?? false,
-      showGearMatch: prefs.getBool('showGearMatch') ?? true,
+      darkMode: prefs.getBool('${prefix}darkMode') ?? false,
+      showGearMatch: prefs.getBool('${prefix}showGearMatch') ?? true,
     );
   }
 
-  Future<void> save() async {
+  Future<void> save({bool demo = demoMode}) async {
     final prefs = await SharedPreferences.getInstance();
+    final prefix = demo ? 'demo.' : '';
     final equipment = preferredEquipment;
     await Future.wait([
-      prefs.setInt('defaultEffort', defaultEffort),
+      prefs.setInt('${prefix}defaultEffort', defaultEffort),
       if (equipment == null)
-        prefs.remove('preferredEquipment')
+        prefs.remove('${prefix}preferredEquipment')
       else
-        prefs.setString('preferredEquipment', equipment),
-      prefs.setBool('darkMode', darkMode),
-      prefs.setBool('showGearMatch', showGearMatch),
+        prefs.setString('${prefix}preferredEquipment', equipment),
+      prefs.setBool('${prefix}darkMode', darkMode),
+      prefs.setBool('${prefix}showGearMatch', showGearMatch),
     ]);
   }
 

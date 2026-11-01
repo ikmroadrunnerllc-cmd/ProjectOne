@@ -1,6 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../demo/demo_setup.dart';
 import '../models/training_log.dart';
 import '../models/workout_plan.dart';
 
@@ -17,19 +18,42 @@ class DatabaseHelper {
   Future<Database> get database => _db ??= _open();
 
   Future<Database> _open() async {
-    return openAt(join(await getDatabasesPath(), 'movement_quest.db'));
+    return openAt(
+      join(
+        await getDatabasesPath(),
+        demoMode ? demoDatabaseName : 'movement_quest.db',
+      ),
+      demo: demoMode,
+    );
   }
 
   /// Opens the database at [path] and makes it the shared instance.
   ///
   /// Tests pass a temp file here instead of the app's default location.
-  Future<Database> openAt(String path) {
+  Future<Database> openAt(String path, {bool demo = false}) {
     return _db = openDatabase(
       path,
-      version: 1,
+      version: 2,
       onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
-      onCreate: _onCreate,
+      // version 1 had no weight column; adding it keeps every logged set
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute(
+            'ALTER TABLE training_logs ADD COLUMN $_weightColumn',
+          );
+        }
+      },
+      onCreate: (db, version) async {
+        await _onCreate(db, version);
+        if (demo) await seedDemoData(db);
+      },
     );
+  }
+
+  Future<void> close() async {
+    final pending = _db;
+    _db = null;
+    if (pending != null) await (await pending).close();
   }
 
   Future<List<WorkoutPlan>> plans() async {
@@ -153,6 +177,9 @@ class DatabaseHelper {
     );
   }
 
+  static const _weightColumn =
+      'weight REAL CHECK (weight IS NULL OR weight > 0)';
+
   Future<void> _onCreate(Database db, int version) async {
     final batch = db.batch();
     batch.execute('''
@@ -173,6 +200,7 @@ class DatabaseHelper {
         sessionKey TEXT NOT NULL,
         exerciseLabel TEXT NOT NULL,
         repetitions INTEGER NOT NULL CHECK (repetitions > 0),
+        $_weightColumn,
         loggedAt TEXT NOT NULL,
         sessionFinished INTEGER NOT NULL DEFAULT 0
           CHECK (sessionFinished IN (0, 1))

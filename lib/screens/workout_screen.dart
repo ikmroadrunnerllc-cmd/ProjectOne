@@ -5,6 +5,7 @@ import '../helper/validators.dart';
 import '../models/training_log.dart';
 import '../models/workout_plan.dart';
 import '../widgets/set_row.dart';
+import '../widgets/weight_field.dart';
 import 'plan_form_screen.dart';
 
 class WorkoutScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class WorkoutScreen extends StatefulWidget {
 class _WorkoutScreenState extends State<WorkoutScreen> {
   final _formKey = GlobalKey<FormState>();
   final _reps = TextEditingController();
+  final _weight = TextEditingController();
   final List<TrainingLog> _sets = [];
   late WorkoutPlan _plan = widget.plan;
   String? _sessionKey;
@@ -30,6 +32,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   @override
   void dispose() {
     _reps.dispose();
+    _weight.dispose();
     super.dispose();
   }
 
@@ -61,6 +64,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       sessionKey: sessionKey,
       exerciseLabel: _exercise,
       repetitions: int.parse(_reps.text.trim()),
+      weight: parseWeight(_weight.text),
       loggedAt: DateTime.now(),
     );
     try {
@@ -162,6 +166,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               formKey: _formKey,
               exercise: _exercise,
               reps: _reps,
+              weight: _weight,
               busy: _busy,
               onExerciseChanged: (label) => setState(() => _exercise = label),
               onLog: () => _logSet(sessionKey),
@@ -237,6 +242,7 @@ class _LogSetForm extends StatelessWidget {
     required this.formKey,
     required this.exercise,
     required this.reps,
+    required this.weight,
     required this.busy,
     required this.onExerciseChanged,
     required this.onLog,
@@ -245,6 +251,7 @@ class _LogSetForm extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final String exercise;
   final TextEditingController reps;
+  final TextEditingController weight;
   final bool busy;
   final ValueChanged<String> onExerciseChanged;
   final VoidCallback onLog;
@@ -277,6 +284,8 @@ class _LogSetForm extends StatelessWidget {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: validateReps,
           ),
+          const SizedBox(height: 12),
+          WeightField(controller: weight),
           const SizedBox(height: 12),
           FilledButton(
             onPressed: busy ? null : onLog,

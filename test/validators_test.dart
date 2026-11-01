@@ -15,4 +15,25 @@ void main() {
       }
     });
   });
+
+  group('validateWeight', () {
+    test('accepts blank for bodyweight and numbers up to 2000', () {
+      for (final raw in [null, '', '  ', '45', '2.5', ' 135 ', '2000']) {
+        expect(validateWeight(raw), isNull, reason: '$raw');
+      }
+    });
+
+    test('rejects zero, negatives, text and anything over 2000', () {
+      for (final raw in ['0', '-5', 'heavy', '2000.5', '1e9']) {
+        expect(validateWeight(raw), isNotNull, reason: raw);
+      }
+    });
+
+    test('formats whole pounds without a decimal', () {
+      expect(formatWeight(135), '135');
+      expect(formatWeight(2.5), '2.5');
+      expect(parseWeight(' '), isNull);
+      expect(parseWeight('137.5'), 137.5);
+    });
+  });
 }

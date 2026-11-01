@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'db/database_helper.dart';
+import 'demo/demo_setup.dart';
 import 'models/app_settings.dart';
 import 'screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (demoMode) {
+    await prepareDemoDatabase(
+      directory: await getDatabasesPath(),
+      resetToken: const String.fromEnvironment('DEMO_RESET'),
+    );
+  }
   final db = await DatabaseHelper.instance.database;
   final planCount = Sqflite.firstIntValue(
     await db.rawQuery('SELECT COUNT(*) FROM workout_plans'),

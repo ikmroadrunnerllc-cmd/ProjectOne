@@ -1,4 +1,10 @@
-const equipmentTags = ['None', 'Dumbbells', 'Resistance Band', 'Mat'];
+const equipmentTags = [
+  'None',
+  'Barbell',
+  'Dumbbells',
+  'Resistance Band',
+  'Mat',
+];
 
 class WorkoutPlan {
   const WorkoutPlan({

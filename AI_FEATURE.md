@@ -13,7 +13,7 @@ Show Gear Match switch in Settings turns it off completely.
 
 ## Inputs
 
-- **Preferred equipment** from Settings: one of None, Dumbbells, Resistance
+- **Preferred equipment** from Settings: one of None, Barbell, Dumbbells, Resistance
   Band or Mat, or "No preference".
 - **Plans**: every row in `workout_plans`.
 - **Last finished plan**: the `workoutId` of the newest finished session,

@@ -6,6 +6,7 @@ import '../models/training_log.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/set_row.dart';
 import '../widgets/stat_tile.dart';
+import '../widgets/weight_field.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -208,12 +209,19 @@ class _EditSetDialog extends StatefulWidget {
 class _EditSetDialogState extends State<_EditSetDialog> {
   final _formKey = GlobalKey<FormState>();
   late final _reps = TextEditingController(text: '${widget.log.repetitions}');
+  late final _weight = TextEditingController(
+    text: switch (widget.log.weight) {
+      final weight? => formatWeight(weight),
+      null => '',
+    },
+  );
   late String _exercise = widget.log.exerciseLabel;
   bool _saving = false;
 
   @override
   void dispose() {
     _reps.dispose();
+    _weight.dispose();
     super.dispose();
   }
 
@@ -225,6 +233,8 @@ class _EditSetDialogState extends State<_EditSetDialog> {
     final updated = widget.log.copyWith(
       exerciseLabel: _exercise,
       repetitions: int.parse(_reps.text.trim()),
+      weight: parseWeight(_weight.text),
+      clearWeight: _weight.text.trim().isEmpty,
     );
     try {
       await DatabaseHelper.instance.updateLog(updated);
@@ -272,6 +282,8 @@ class _EditSetDialogState extends State<_EditSetDialog> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: validateReps,
             ),
+            const SizedBox(height: 12),
+            WeightField(controller: _weight),
           ],
         ),
       ),
