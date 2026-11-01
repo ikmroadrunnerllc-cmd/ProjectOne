@@ -1,0 +1,84 @@
+Movement Quest Proposal
+
+Mario Leonel Gutierrez Espinal
+Student ID 002889038
+Team Fitness, solo team
+CSC 4360 Project One
+
+This is a simplified wording draft prepared on October 31, 2026. It does not
+replace evidence of instructor approval for the original proposal.
+
+Project idea
+
+Movement Quest is an offline workout logbook. A user can save plans, record
+exercise sets and review workout history. I changed my earlier Trail Tales
+idea because its route tracking and safety warnings did not fit the topic.
+Movement Quest stores what the user enters and gives no health advice.
+
+What the user enters
+
+A workout plan has a title, equipment, an optional note and an effort level
+from 1 to 5. A set has an exercise and reps. The current version also supports
+an optional weight in pounds and a Barbell equipment tag.
+
+What the app shows
+
+The app shows saved plans, an equipment filter, workout history, total reps
+and a finished-workout count. Users can create, edit and delete both plans
+and sets. Settings saves preferred equipment, default effort, dark mode and
+the option to show or hide Gear Match.
+
+Screens and navigation
+
+The five screens are Plans, Create or Edit Plan, Workout, History and Settings.
+Plans, History and Settings are tabs. Selecting a plan opens Workout. New Plan
+and Edit Plan open the plan form. Workout lets the user Start, Log set, Finish
+or Reset. History lets the user correct or delete saved sets.
+
+Storage
+
+SQLite stores the plans and sets in two linked tables. Each set belongs to a
+plan. Deleting a plan also removes its sets after confirmation. Settings uses
+SharedPreferences. The app does not need a cloud database or internet connection.
+
+Counting workouts
+
+Several sets can belong to one workout. All sets in that workout share a
+sessionKey. The app counts distinct finished session keys rather than counting
+every set as a separate workout. Reset removes only unfinished sets from the
+current session. Adding the weight column must preserve older saved sets.
+
+Gear Match
+
+Gear Match suggests a saved plan using fixed rules. Matching the preferred
+equipment adds 2 points. Choosing a plan different from the last finished plan
+adds 1 point. The lower ID wins a tie. The baseline uses equipment matching
+only. The suggestion explains its points, and the user can ignore or disable it.
+
+The helper cannot know what the user wants today. A saved Dumbbells preference
+can still suggest Dumbbells when the user wants Mat. This is a known limit.
+
+Testing
+
+The test plan covers form validation, both entities' saved records, deleting
+linked records, session counting, settings, the schema upgrade and helper cases.
+Offline checks should save records and a setting, close the app, reopen it and
+confirm the saved values on two devices or emulators. A test should also leave
+the screen while a save is running. Results belong in the final report.
+
+Project work and submission
+
+Mario is the only member of Team Fitness. GitHub stores the code and tests.
+ClickUp should record the tasks, dated board snapshots and task-to-code/test
+evidence. The board URL and required evidence PDF still need to be supplied.
+
+The assignment checkpoints were October 18 for the proposal, October 21 for
+UI/navigation, October 24 for core functionality and October 28 for final
+submission. These dates are the original schedule, not a claim that approval
+or submission occurred on those dates.
+
+The final package needs the release APK, approved proposal, report, signed
+statement, questions-only Word document, PowerPoint, helper documentation,
+ClickUp evidence, repository link and video link.
+
+Repository: https://github.com/ikmroadrunnerllc-cmd/ProjectOne
